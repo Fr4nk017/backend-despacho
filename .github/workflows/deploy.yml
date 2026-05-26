@@ -26,13 +26,15 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/backend-despacho:latest
 
-      - name: Deploy to EC2
+      - name: Deploy to EC2 Backend via Frontend proxy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_BACKEND_HOST }}
+          host: ${{ secrets.EC2_FRONTEND_HOST }}
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/backend-despacho:latest
-            docker-compose down
-            docker-compose up -d
+            ssh -i ~/key-despacho.pem -o StrictHostKeyChecking=no ec2-user@10.0.133.200 "
+              sudo docker pull fr4nk17/backend-despacho:latest &&
+              sudo docker-compose -f ~/app/docker-compose.yml down &&
+              sudo docker-compose -f ~/app/docker-compose.yml up -d
+            "
