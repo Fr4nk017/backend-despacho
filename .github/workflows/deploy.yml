@@ -33,8 +33,11 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            ssh -i ~/key-despacho.pem -o StrictHostKeyChecking=no ec2-user@10.0.133.200 "
+            echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/key.pem
+            chmod 400 /tmp/key.pem
+            ssh -i /tmp/key.pem -o StrictHostKeyChecking=no ec2-user@10.0.133.200 "
               sudo docker pull fr4nk17/backend-despacho:latest &&
               sudo docker-compose -f ~/app/docker-compose.yml down &&
               sudo docker-compose -f ~/app/docker-compose.yml up -d
             "
+            rm /tmp/key.pem
